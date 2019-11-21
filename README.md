@@ -1,5 +1,5 @@
 # DD-LES
-This repository contains codes for two-dimensional Kraichnan turbulence. Please refer to our  [paper](https://arxiv.org/abs/1910.07132) for detailed discussion.
+This repository contains codes for two-dimensional Kraichnan turbulence. Please refer to our  [paper](https://arxiv.org/abs/1910.07132) for more information.
 
 ### A top-level directory layout
 
