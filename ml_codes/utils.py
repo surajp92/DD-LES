@@ -69,6 +69,7 @@ def export_resutls(y_test, y_pred, ilabel, istencil, ifeatures, n_snapshots_trai
             
             filename = folder+"/y_pred_nu_"+str(istencil)+"_"+str(ifeatures)+"_"+str(n_snapshots_train)+".csv"
             np.savetxt(filename, y_p[:,0], delimiter=",")
+    
         
 #%%
 def plot_dynamic_cs2(nxf, nx):

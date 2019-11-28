@@ -7,26 +7,20 @@ Created on Sat May 25 14:51:02 2019
 
 import numpy as np
 import matplotlib.pyplot as plt
-from keras.models import Sequential, Model, load_model
-from keras.layers import Dense, Dropout, Input
-from keras.callbacks import ModelCheckpoint
-#from keras.utils import plot_model
-from keras import optimizers
-from scipy.stats import norm 
-from keras import backend as K
-from sklearn.preprocessing import MinMaxScaler
+
 from numpy.random import seed
 seed(1)
 from tensorflow import set_random_seed
 set_random_seed(2)
-from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.model_selection import RandomizedSearchCV, KFold
-from sklearn.model_selection import train_test_split
-from keras.regularizers import l2
+
 from utils import *
+
 import os
 import time as tm
 import csv
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import MinMaxScaler
 
 font = {'family' : 'Times New Roman',
         'size'   : 14}	
@@ -364,196 +358,6 @@ class DHIT:
         
         return x_test, y_test
     
-    
-#%%
-#A Convolutional Neural Network class
-class DNN:
-    def __init__(self,x_train,y_train,x_valid,y_valid,nf,nl,n_layers,n_neurons,lr):
-        
-        '''
-        initialize the CNN class
-        
-        Inputs
-        ------
-        x_train : input features of the DNN model
-        y_train : output label of the DNN model
-        nf : number of input features
-        nl : number of output labels
-        '''
-        
-        self.x_train = x_train
-        self.y_train = y_train
-        self.x_valid = x_valid
-        self.y_valid = y_valid
-        self.nf = nf
-        self.nl = nl
-        self.n_layers = n_layers
-        self.n_neurons = n_neurons
-        self.lr = lr
-        self.model = self.DNN(x_train,y_train,nf,nl)
-    
-    def coeff_determination(self,y_true, y_pred):
-        SS_res =  K.sum(K.square( y_true-y_pred ))
-        SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) )
-        return ( 1 - SS_res/(SS_tot + K.epsilon()) )
-        
-    def DNN(self,x_train,y_train,nf,nl):
-        
-        '''
-        define CNN model
-        
-        Inputs
-        ------
-        x_train : input features of the DNN model
-        y_train : output label of the DNN model
-        nf : number of input features
-        nl : number of output labels
-        
-        Output
-        ------
-        model: DNN model with defined activation function, number of layers
-        '''
-
-        model = Sequential()
-        input_layer = Input(shape=(self.nf,))
-        
-        x = Dense(self.n_neurons[0], activation='relu',  use_bias=True)(input_layer)
-        for i in range(1,self.n_layers):
-            x = Dense(self.n_neurons[i], activation='relu',  use_bias=True)(x)
-        
-        output_layer = Dense(self.nl, activation='linear', use_bias=True)(x)
-        
-        model = Model(input_layer, output_layer)
-            
-        #adam = optimizers.Adam(lr=self.lr, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-        model.compile(loss='mean_squared_error', optimizer='adam', metrics=[self.coeff_determination])
-        
-        return model
-        
-    def DNN_train(self,epochs,batch_size):
-        
-        '''
-        train the CNN model
-        
-        Inputs
-        ------
-        epochs: number of epochs of the training
-        batch_size: batch size of the training
-        
-        Output
-        ------
-        history_callback: return the loss history of CNN model training
-        '''
-        
-        filepath = "nn_history/dnn_best_model.hd5"
-        checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-        callbacks_list = [checkpoint]
-        
-        history_callback = self.model.fit(self.x_train,self.y_train,epochs=epochs,batch_size=batch_size, 
-                                          validation_data= (self.x_valid,self.y_valid),callbacks=callbacks_list)
-        
-        return history_callback
-    
-    def DNN_history(self, history_callback):
-        
-        '''
-        get the training and validation loss history
-        
-        Inputs
-        ------
-        history_callback: loss history of DNN model training
-        
-        Output
-        ------
-        loss: training loss history of DNN model training
-        val_loss: validation loss history of DNN model training
-        '''
-        
-        loss = history_callback.history["loss"]
-        val_loss = history_callback.history["val_loss"]
-        mse = history_callback.history['coeff_determination']
-        val_mse = history_callback.history['val_coeff_determination']
-        
-        return loss, val_loss, mse, val_mse
-            
-    def DNN_predict(self,x_test):
-        
-        '''
-        predict the label for input features
-        
-        Inputs
-        ------
-        x_test: test data (has same shape as input features used for training)
-        
-        Output
-        ------
-        y_test: predicted output by the CNN (has same shape as label used for training)
-        '''
-        
-        custom_model = load_model('nn_history/dnn_best_model.hd5', 
-                                  custom_objects={'coeff_determination': self.coeff_determination})
-        
-        testing_time_init1 = tm.time()
-        y_test = custom_model.predict(x_test)
-        t1 = tm.time() - testing_time_init1
-        
-        testing_time_init2 = tm.time()
-        y_test = custom_model.predict(x_test)
-        #y_test = custom_model.predict(x_test)
-        t2 = tm.time() - testing_time_init2
-        
-        testing_time_init3 = tm.time()
-        y_test = custom_model.predict(x_test)
-        y_test = custom_model.predict(x_test)
-        t3 = tm.time() - testing_time_init3
-        
-        return y_test,t1,t2,t3
-    
-    def DNN_predict1(self,x_test,ist,ift,nsm):
-        
-        '''
-        predict the label for input features
-        
-        Inputs
-        ------
-        x_test: test data (has same shape as input features used for training)
-        
-        Output
-        ------
-        y_test: predicted output by the CNN (has same shape as label used for training)
-        '''
-        filepath = 'tcfd_paper_data/new_data_sgs/ann_'+str(ist)+'_'+str(ift)+'_'+str(nsm)
-        
-        custom_model = load_model(filepath+'/dnn_best_model.hd5', 
-                                  custom_objects={'coeff_determination': self.coeff_determination})
-                                  
-        
-        testing_time_init1 = tm.time()
-        y_test = custom_model.predict(x_test)
-        t1 = tm.time() - testing_time_init1
-        
-        testing_time_init2 = tm.time()
-        y_test = custom_model.predict(x_test)
-        #y_test = custom_model.predict(x_test)
-        t2 = tm.time() - testing_time_init2
-        
-        testing_time_init3 = tm.time()
-        y_test = custom_model.predict(x_test)
-        y_test = custom_model.predict(x_test)
-        t3 = tm.time() - testing_time_init3
-        
-        return y_test,t1,t2,t3
-    
-    def DNN_info(self):
-        
-        '''
-        print the CNN model summary
-        '''
-        
-        self.model.summary()
-        #plot_model(self.model, to_file='dnn_model.png')
-     
-        
 #%%
 # generate training and testing data for CNN
 l1 = []
@@ -600,30 +404,13 @@ ns_train,nf = x_train.shape
 ns_train,nl = y_train.shape 
 
 #%%
-# train the CNN model and predict for the test data
-model=DNN(x_train,y_train,x_valid,y_valid,nf,nl,n_layers,n_neurons,lr)
-model.DNN_info()
+# random forest regressor
+regressor = RandomForestRegressor(n_estimators = 50, random_state = 0)
+regressor.fit(x_train, y_train)
 
-#%%
-training_time_init = tm.time()
-
-history_callback = model.DNN_train(epochs=500,batch_size=512)#,model_name="dnn_best_model.hd5")
-
-total_training_time = tm.time() - training_time_init
-
-loss, val_loss, mse, val_mse = model.DNN_history(history_callback)
-nn_history(loss, val_loss, mse, val_mse, istencil, ifeatures, n_snapshots_train)
-
-#%%
-#total_training_time =0
-y_pred_sc, t1, t2, t3 = model.DNN_predict(x_test_sc)
-
+y_pred_sc = regressor.predict(x_test_sc)
 y_pred = sc_output.inverse_transform(y_pred_sc)
 
-with open('cpu_time.csv', 'a', newline='') as myfile:
-     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-     wr.writerow(['DNN',istencil, ifeatures, n_snapshots_train, total_training_time, t1, t2, t3])
-     
 export_resutls(y_test, y_pred, ilabel, istencil, ifeatures, n_snapshots_train, nxf, nx, nn = 1)
 
 #%%
@@ -699,8 +486,8 @@ axs[2].set_xticklabels(x_labels)
 
 fig.tight_layout()
 fig.subplots_adjust(hspace=0.5, bottom=0.25)
-line_labels = ["True", "DSM", "ANN"]
+line_labels = ["True", "DSM", "RF"]
 plt.figlegend( line_labels,  loc = 'lower center', borderaxespad=0.3, ncol=3, labelspacing=0.,  prop={'size': 13} )
 plt.show()
 
-fig.savefig('nn_history/ts_dnn_'+str(istencil)+'_'+str(ifeatures)+'_'+str(n_snapshots_train)+'.pdf', bbox_inches = 'tight')
+fig.savefig('nn_history/ts_rf_'+str(istencil)+'_'+str(ifeatures)+'_'+str(n_snapshots_train)+'.pdf', bbox_inches = 'tight')
