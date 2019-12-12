@@ -417,9 +417,9 @@ class DNN:
         model = Sequential()
         input_layer = Input(shape=(self.nf,))
         
-        x = Dense(self.n_neurons[0], activation='relu',  use_bias=True)(input_layer)
+        x = Dense(self.n_neurons[0], activation='sigmoid',  use_bias=True)(input_layer)
         for i in range(1,self.n_layers):
-            x = Dense(self.n_neurons[i], activation='relu',  use_bias=True)(x)
+            x = Dense(self.n_neurons[i], activation='sigmoid',  use_bias=True)(x)
         
         output_layer = Dense(self.nl, activation='linear', use_bias=True)(x)
         

@@ -405,10 +405,29 @@ ns_train,nl = y_train.shape
 #%%
 # random forest regressor
 regressor = DecisionTreeRegressor(max_depth=50, random_state = 0)
-regressor.fit(x_train, y_train)
 
+training_time_init = tm.time()
+regressor.fit(x_train, y_train)
+total_training_time = tm.time() - training_time_init
+
+testing_time_init = tm.time()
 y_pred_sc = regressor.predict(x_test_sc)
+t1 = tm.time() - testing_time_init
+
+testing_time_init = tm.time()
+y_pred_sc = regressor.predict(x_test_sc)
+t2 = tm.time() - testing_time_init
+
+testing_time_init = tm.time()
+y_pred_sc = regressor.predict(x_test_sc)
+t3 = tm.time() - testing_time_init
+
+
 y_pred = sc_output.inverse_transform(y_pred_sc)
+
+with open('cpu_time.csv', 'a', newline='') as myfile:
+     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+     wr.writerow(['DT',istencil, ifeatures, n_snapshots_train, total_training_time, t1, t2, t3])
 
 export_resutls(y_test, y_pred, ilabel, istencil, ifeatures, n_snapshots_train, nxf, nx, nn = 1)
 

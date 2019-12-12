@@ -21,6 +21,7 @@ import csv
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
 font = {'family' : 'Times New Roman',
         'size'   : 14}	
@@ -375,10 +376,6 @@ istencil = np.int64(l1[6][0])
 ifeatures = np.int64(l1[7][0])   
 ilabel = np.int64(l1[8][0])      
 
-# hyperparameters initilization
-n_layers = 2
-n_neurons = [40,40]
-lr = 0.001
 
 #%%
 obj = DHIT(nx=nx,ny=ny,nxf=nxf,nyf=nyf,freq=freq,n_snapshots=n_snapshots,n_snapshots_train=n_snapshots_train, 
@@ -405,11 +402,30 @@ ns_train,nl = y_train.shape
 
 #%%
 # random forest regressor
-regressor = RandomForestRegressor(n_estimators = 50, random_state = 0)
-regressor.fit(x_train, y_train)
 
+regressor = RandomForestRegressor(n_estimators = 50, random_state = 0)
+
+training_time_init = tm.time()
+regressor.fit(x_train, y_train)
+total_training_time = tm.time() - training_time_init
+
+testing_time_init = tm.time()
 y_pred_sc = regressor.predict(x_test_sc)
+t1 = tm.time() - testing_time_init
+
+testing_time_init = tm.time()
+y_pred_sc = regressor.predict(x_test_sc)
+t2 = tm.time() - testing_time_init
+
+testing_time_init = tm.time()
+y_pred_sc = regressor.predict(x_test_sc)
+t3 = tm.time() - testing_time_init
+
 y_pred = sc_output.inverse_transform(y_pred_sc)
+
+with open('cpu_time.csv', 'a', newline='') as myfile:
+     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+     wr.writerow(['RF',istencil, ifeatures, n_snapshots_train, total_training_time, t1, t2, t3])
 
 export_resutls(y_test, y_pred, ilabel, istencil, ifeatures, n_snapshots_train, nxf, nx, nn = 1)
 
