@@ -576,6 +576,9 @@ n_layers = 2
 n_neurons = [40,40]
 lr = 0.001
 
+if not os.path.exists("./nn_history/"):
+    os.makedirs("./nn_history/")
+    
 #%%
 obj = DHIT(nx=nx,ny=ny,nxf=nxf,nyf=nyf,freq=freq,n_snapshots=n_snapshots,n_snapshots_train=n_snapshots_train, 
            n_snapshots_test=n_snapshots_test,istencil=istencil,ifeatures=ifeatures,ilabel=ilabel)

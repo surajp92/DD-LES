@@ -502,6 +502,9 @@ istencil = np.int64(l1[6][0])    # 1: nine point, 2: single point
 ifeatures = np.int64(l1[7][0])   # 1: 6 features, 2: 2 features 
 ilabel = np.int64(l1[8][0])      # 1: SGS (tau), 2: eddy-viscosity (nu)
 
+if not os.path.exists("./nn_history/"):
+    os.makedirs("./nn_history/")
+    
 obj = DHIT(nx=nx,ny=ny,nxf=nxf,nyf=nyf,freq=freq,n_snapshots=n_snapshots,n_snapshots_train=n_snapshots_train, 
            n_snapshots_test=n_snapshots_test,istencil=istencil,ifeatures=ifeatures,ilabel=ilabel)
 

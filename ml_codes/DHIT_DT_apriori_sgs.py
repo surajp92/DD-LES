@@ -360,7 +360,7 @@ class DHIT:
 #%%
 # generate training and testing data for CNN
 l1 = []
-with open('dnn.txt') as f:
+with open('dt.txt') as f:
     for l in f:
         l1.append((l.strip()).split("\t"))
 
@@ -375,9 +375,8 @@ ifeatures = np.int64(l1[7][0])
 ilabel = np.int64(l1[8][0])      
 
 # hyperparameters initilization
-n_layers = 2
-n_neurons = [40,40]
-lr = 0.001
+if not os.path.exists("./nn_history/"):
+    os.makedirs("./nn_history/")
 
 #%%
 obj = DHIT(nx=nx,ny=ny,nxf=nxf,nyf=nyf,freq=freq,n_snapshots=n_snapshots,n_snapshots_train=n_snapshots_train, 

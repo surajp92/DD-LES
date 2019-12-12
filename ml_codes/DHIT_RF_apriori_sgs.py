@@ -362,7 +362,7 @@ class DHIT:
 #%%
 # generate training and testing data for CNN
 l1 = []
-with open('dnn.txt') as f:
+with open('rf.txt') as f:
     for l in f:
         l1.append((l.strip()).split("\t"))
 
@@ -376,6 +376,8 @@ istencil = np.int64(l1[6][0])
 ifeatures = np.int64(l1[7][0])   
 ilabel = np.int64(l1[8][0])      
 
+if not os.path.exists("./nn_history/"):
+    os.makedirs("./nn_history/")
 
 #%%
 obj = DHIT(nx=nx,ny=ny,nxf=nxf,nyf=nyf,freq=freq,n_snapshots=n_snapshots,n_snapshots_train=n_snapshots_train, 
