@@ -10,6 +10,6 @@ This repository contains codes for two-dimensional Kraichnan turbulence. Please 
     ├── LICENSE
     └── README.md
 
-# Required python packages:
+### Required python packages:
 - Numpy, SciPy, Matplotlib
 - scikit-learn, Keras, Tensorflow 
