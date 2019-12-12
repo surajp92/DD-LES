@@ -9,3 +9,7 @@ This repository contains codes for two-dimensional Kraichnan turbulence. Please 
     ├── spectral_solver            # Spectral solver codes for 2D decaying homegenous turbulence problem
     ├── LICENSE
     └── README.md
+
+# Required python packages:
+- Numpy, SciPy, Matplotlib
+- scikit-learn, Keras, Tensorflow 
