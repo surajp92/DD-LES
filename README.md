@@ -1,5 +1,5 @@
 # DD-LES
-This repository contains codes for two-dimensional Kraichnan turbulence. 
+This repository contains codes for different machine learning algorithms for two-dimensional Kraichnan turbulence. We investigate decision tree regreesor, random forest regressor, feedforward neural network, and convolutional neural network in this study.  
 
 ### A top-level directory layout
 
